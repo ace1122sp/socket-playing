@@ -23,7 +23,7 @@ const setMessaging = () => {
   });
 
   socket.on('new user', () => {
-    showNotification(messages, 'new user', 'new-user-notification');
+    showNotification(messages, 'new user joined', 'new-user-notification');
   });
 
   socket.on('user disconnected', () => {
@@ -37,10 +37,10 @@ const appendMessage = (messages, msg) => {
   messages.appendChild(li);
 };
 
-const showNotification = (parentNode, eventName, className) => {
+const showNotification = (parentNode, message, className) => {
   const li = document.createElement('li');
   li.setAttribute('class', className);
-  li.innerText = eventName;
+  li.innerText = message;
  
   parentNode.appendChild(li);
   let notificationTimeout = setTimeout(() => {
