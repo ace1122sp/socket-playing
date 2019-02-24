@@ -6,6 +6,10 @@ body {
   font: 13px Helvetica, Arial; 
 }
 
+button {
+  cursor: pointer;
+}
+
 form { 
   background: steelblue; padding: 3px; position: fixed; bottom: 0; width: 100%; 
 }
@@ -23,10 +27,6 @@ form button {
 #messages li { 
   padding: 5px 10px; 
 }    
-
-#messages li:nth-child(odd) { 
-  background: #eee; 
-}
 
 #login-div {
   display: flex;
@@ -55,4 +55,10 @@ form button {
 
 label {
   color: white;
+}
+
+.typing-notification {
+  background: white;
+  color: gray;
+  font-style: italic;
 }
