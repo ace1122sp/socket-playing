@@ -33,8 +33,19 @@ const setMessaging = nickname => {
   chatForm.addEventListener('submit', e => {
     e.preventDefault();
     appendMessage(messages, chatInput.value, nickname);
+    socket.emit('typing end', nickname);
     socket.emit('chat message', chatInput.value, nickname);
     chatInput.value = '';
+    return;
+  });
+
+  chatInput.addEventListener('input', e => {
+    if (e.target.value.length) {      
+      socket.emit('user typing', nickname);
+    } else {
+      socket.emit('typing end', nickname);
+    }
+    
     return;
   });
 
@@ -48,6 +59,14 @@ const setMessaging = nickname => {
 
   socket.on('user disconnected', () => {
     showNotification(messages, 'user disconnected', 'user-disconnected-notification');
+  });
+
+  socket.on('user typing', nickname => {
+    showTypingNotification(messages, nickname);
+  });
+
+  socket.on('typing end', nickname => {
+    hideTypingNotification(nickname);
   });
 }
 
@@ -75,8 +94,25 @@ const showNotification = (parentNode, message, className) => {
     parentNode.removeChild(li);
     clearTimeout(notificationTimeout);
   }, 2000);
+};  
+
+const showTypingNotification = (parentNode, nickname) => {
+  const typingMessage = document.getElementById(`${nickname}-typing`);
+  if (!typingMessage) {
+    const li = document.createElement('li');
+    li.setAttribute('class', 'typing-notification');
+    li.setAttribute('id', `${nickname}-typing`);
+    li.innerText = `${nickname} is typing...`;
+
+    parentNode.appendChild(li);
+  }
 };
 
+const hideTypingNotification = nickname => {
+  const typingNotification = document.getElementById(`${nickname}-typing`);
+
+  typingNotification.parentNode.removeChild(typingNotification);
+}
 (() => {      
   login();
 })();

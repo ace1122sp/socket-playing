@@ -15,6 +15,14 @@ io.on('connection', socket => {
     socket.broadcast.emit('chat message', msg, nickname);
   });
 
+  socket.on('user typing', nickname => {
+    socket.broadcast.emit('user typing', nickname);
+  });
+
+  socket.on('typing end', nickname => {
+    socket.broadcast.emit('typing end', nickname);
+  });
+
   socket.broadcast.emit('new user');
 
   socket.on('disconnect', () => {
