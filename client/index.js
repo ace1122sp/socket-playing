@@ -12,7 +12,7 @@ const getDom = () => {
 
 const login = () => {
   // update dom
-  // call setMessaging()
+  // call engine()
 
   const { loginForm, loginInput, loginDiv, chatDiv } = getDom();
 
@@ -21,12 +21,13 @@ const login = () => {
     loginForm.removeEventListener('submit', () => {});
 
     loginDiv.style.display = 'none';
-    setMessaging(loginInput.value);
+    engine(loginInput.value);
     chatDiv.style.display = 'inherit';
   });
 };
 
-const setMessaging = nickname => {
+const engine = nickname => {
+  const onlineList = new OnlineList();
   let socket = io();
   const { chatForm, chatInput, messages } = getDom();
 
@@ -47,6 +48,13 @@ const setMessaging = nickname => {
     }
     
     return;
+  });
+
+  socket.emit('login', nickname);
+
+  socket.on('online list', list => {
+    onlineList.update(list);
+    console.log(onlineList.list);
   });
 
   socket.on('chat message', (msg, nickname) => {
@@ -113,7 +121,23 @@ const hideTypingNotification = nickname => {
 
   typingNotification.parentNode.removeChild(typingNotification);
 }
+
 (() => {      
   login();
 })();
 
+// ----- classes -----
+
+class OnlineList {
+  constructor() {
+    this.online = [];
+  }
+
+  update(initList) {
+    this.online = [...initList];
+  }
+
+  get list() {
+    return this.online;
+  }
+};
