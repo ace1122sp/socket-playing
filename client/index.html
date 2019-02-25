@@ -17,11 +17,17 @@
     </form>
   </div>
   <div id="chat-div">
-    <ul id="messages"></ul>
-    <form action="" id="chat-form">
-      <input id="m" autocomplete="off" />
-      <button>Send</button>
-    </form>
+    <aside>
+      <h2>Online:</h2>
+      <ul id='online-list'></ul>
+    </aside>
+    <section>
+      <ul id="messages"></ul>
+      <form action="" id="chat-form">
+        <input id="m" autocomplete="off" />
+        <button>Send</button>
+      </form>
+    </section>
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/index.js"></script>
