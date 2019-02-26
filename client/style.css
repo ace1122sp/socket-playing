@@ -11,7 +11,11 @@ button {
 }
 
 form { 
-  background: steelblue; padding: 3px; position: fixed; bottom: 0; width: 100%; 
+  background: steelblue; 
+  padding: 3px; 
+  position: fixed; 
+  bottom: 0; 
+  width: 100%; 
 }
 
 form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
@@ -51,6 +55,23 @@ form button {
 
 #chat-div {
   display: none;
+  flex-direction: row;
+}
+
+aside {
+  width: 20%;
+  box-shadow: 1px 1px 1px grey;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 5px;
+  padding-left: 10px;
+  color: gray;
+}
+
+aside > h2 {
+  padding-bottom: 10px;
+  text-decoration: underline;
 }
 
 label {

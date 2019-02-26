@@ -34,7 +34,7 @@ const login = () => {
 
     loginDiv.style.display = 'none';
     engine(loginInput.value);
-    chatDiv.style.display = 'inherit';
+    chatDiv.style.display = 'flex';
   });
 };
 
