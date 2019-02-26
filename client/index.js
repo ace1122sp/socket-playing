@@ -6,8 +6,20 @@ const getDom = () => {
   const chatForm = document.getElementById('chat-form');
   const chatInput = document.getElementById('m');
   const messages = document.getElementById('messages');
+  const onlineListElm = document.getElementById('online-list');
 
-  return { loginDiv, chatDiv, loginForm, loginInput, chatForm, chatInput, messages };
+  return { loginDiv, chatDiv, loginForm, loginInput, chatForm, chatInput, messages, onlineListElm };
+}
+
+const renderOnlineList = (onlineListElm, list) => {
+  onlineListElm.innerHTML = '';
+
+  list.forEach(user => {
+    let li = document.createElement('li');
+    li.innerText = user;
+
+    onlineListElm.appendChild(li);
+  });
 }
 
 const login = () => {
@@ -29,7 +41,7 @@ const login = () => {
 const engine = nickname => {
   const onlineList = new OnlineList();
   let socket = io();
-  const { chatForm, chatInput, messages } = getDom();
+  const { chatForm, chatInput, messages, onlineListElm } = getDom();
 
   chatForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -54,7 +66,7 @@ const engine = nickname => {
 
   socket.on('online list', list => {
     onlineList.update(list);
-    console.log(onlineList.list);
+    renderOnlineList(onlineListElm, list);
   });
 
   socket.on('chat message', (msg, nickname) => {
