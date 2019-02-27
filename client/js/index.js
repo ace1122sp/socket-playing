@@ -5,16 +5,27 @@
 
   const view = {
     init: function() {
-      const loginDiv = document.getElementById('login-div');
-      const chatDiv = document.getElementById('chat-div');
-      const loginForm = document.getElementById('login-form');
-      const loginInput = document.getElementById('nickname');
-      const chatForm = document.getElementById('chat-form');
-      const chatInput = document.getElementById('m');
+      this.loginDiv = document.getElementById('login-div');
+      this.chatDiv = document.getElementById('chat-div');
+      this.loginForm = document.getElementById('login-form');
+      this.loginInput = document.getElementById('nickname');
+      this.chatForm = document.getElementById('chat-form');
+      this.chatInput = document.getElementById('m');
       this.messages = document.getElementById('messages');
       this.onlineListElm = document.getElementById('online-list');
-    
-      return { loginDiv, chatDiv, loginForm, loginInput, chatForm, chatInput };    
+    },
+
+    addLoginListener: function() {
+      this.loginForm.addEventListener('submit', this._renderChatAndHideLogin);
+    },
+
+    _renderChatAndHideLogin: function(e) {
+      e.preventDefault();      
+      view.loginForm.removeEventListener('submit', this._renderChatAndHideLogin);
+  
+      view.loginDiv.style.display = 'none';
+      octopus.engine(view.loginInput.value);
+      view.chatDiv.style.display = 'flex';
     },
 
     renderOnlineList: function(list) {
@@ -71,78 +82,77 @@
       li.appendChild(span);
     
       this.messages.appendChild(li);
+    },
+
+    addMessageListeners: function(nickname) {
+      this.setMessaging(nickname);
+      this.setTyping(nickname);
+    },
+
+    setMessaging: function(nickname) {
+      this.chatForm.addEventListener('submit', e => {
+        e.preventDefault();
+        view.renderMessage(this.chatInput.value, nickname);
+        octopus.socket.emit('typing end', nickname);
+        octopus.socket.emit('chat message', this.chatInput.value, nickname);
+        this.chatInput.value = '';
+        return;
+      });
+    },
+
+    setTyping: function(nickname) {
+      this.chatInput.addEventListener('input', e => {
+        if (e.target.value.length) {      
+          octopus.socket.emit('user typing', nickname);
+        } else {
+          octopus.socket.emit('typing end', nickname);
+        }
+        return;
+      });
     }
   };
 
-  const octopus = {};
+  const octopus = {
+    init: function() {
+      this.onlineList = new OnlineList();
+      this.socket = io();
+      
+      // get init dom and set init listeners
+      view.init();
+      view.addLoginListener();
+    },
 
-  const login = () => {
-    // update dom
-    // call engine()
-  
-    const { loginForm, loginInput, loginDiv, chatDiv } = view.init();
-  
-    loginForm.addEventListener('submit', e => {
-      e.preventDefault();
-      loginForm.removeEventListener('submit', () => {});
-  
-      loginDiv.style.display = 'none';
-      engine(loginInput.value);
-      chatDiv.style.display = 'flex';
-    });
+    engine: function(nickname) {      
+      view.addMessageListeners(nickname);
+    
+      this.socket.emit('login', nickname);
+    
+      this.socket.on('online list', list => {
+        this.onlineList.update(list);
+        view.renderOnlineList(list);
+      });
+    
+      this.socket.on('chat message', (msg, nickname) => {
+        view.renderMessage(msg, nickname);
+      });
+    
+      this.socket.on('new user', () => {
+        view.renderNotification('new user joined', 'new-user-notification');
+      });
+    
+      this.socket.on('user disconnected', () => {
+        view.renderNotification('user disconnected', 'user-disconnected-notification');
+      });
+    
+      this.socket.on('user typing', nickname => {
+        view.renderTypingNotification(nickname);
+      });
+    
+      this.socket.on('typing end', nickname => {
+        view.unrenderTypingNotification(nickname);
+      });
+    }
   };
   
-  const engine = nickname => {
-    const onlineList = new OnlineList();
-    let socket = io();
-    const { chatForm, chatInput } = view.init();
-  
-    chatForm.addEventListener('submit', e => {
-      e.preventDefault();
-      view.renderMessage(chatInput.value, nickname);
-      socket.emit('typing end', nickname);
-      socket.emit('chat message', chatInput.value, nickname);
-      chatInput.value = '';
-      return;
-    });
-  
-    chatInput.addEventListener('input', e => {
-      if (e.target.value.length) {      
-        socket.emit('user typing', nickname);
-      } else {
-        socket.emit('typing end', nickname);
-      }
-      
-      return;
-    });
-  
-    socket.emit('login', nickname);
-  
-    socket.on('online list', list => {
-      onlineList.update(list);
-      view.renderOnlineList(list);
-    });
-  
-    socket.on('chat message', (msg, nickname) => {
-      view.renderMessage(msg, nickname);
-    });
-  
-    socket.on('new user', () => {
-      view.renderNotification('new user joined', 'new-user-notification');
-    });
-  
-    socket.on('user disconnected', () => {
-      view.renderNotification('user disconnected', 'user-disconnected-notification');
-    });
-  
-    socket.on('user typing', nickname => {
-      view.renderTypingNotification(nickname);
-    });
-  
-    socket.on('typing end', nickname => {
-      view.unrenderTypingNotification(nickname);
-    });
-  }
-  
-  login();
+  octopus.init();  
 })();
