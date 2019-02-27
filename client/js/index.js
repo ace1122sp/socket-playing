@@ -1,6 +1,12 @@
 (() => {      
   const model = {
-    init: () => {}
+    init: function() {
+      this.onlineList = new OnlineList();
+    },
+    
+    update: function(list) {
+      this.onlineList.update(list);
+    }
   };
 
   const view = {
@@ -24,7 +30,7 @@
       view.loginForm.removeEventListener('submit', this._renderChatAndHideLogin);
   
       view.loginDiv.style.display = 'none';
-      octopus.engine(view.loginInput.value);
+      octopus.setChat(view.loginInput.value);
       view.chatDiv.style.display = 'flex';
     },
 
@@ -114,7 +120,7 @@
 
   const octopus = {
     init: function() {
-      this.onlineList = new OnlineList();
+      model.init();
       this.socket = io();
       
       // get init dom and set init listeners
@@ -122,13 +128,13 @@
       view.addLoginListener();
     },
 
-    engine: function(nickname) {      
+    setChat: function(nickname) {      
       view.addMessageListeners(nickname);
     
       this.socket.emit('login', nickname);
     
       this.socket.on('online list', list => {
-        this.onlineList.update(list);
+        model.update(list);
         view.renderOnlineList(list);
       });
     
