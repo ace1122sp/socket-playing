@@ -83,3 +83,14 @@ label {
   color: gray;
   font-style: italic;
 }
+
+#chat-form {
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+}
+
+#chat-form > input {
+  width: 70%;
+  margin: auto 1px;
+}
